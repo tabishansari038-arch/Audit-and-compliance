@@ -1,0 +1,1326 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>VeritasAudit — Greenfield University</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,500;0,9..144,700;1,9..144,300&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --navy:#0f2044;--navy2:#1a3260;--gold:#c9a227;--gold2:#f0c040;
+  --slate:#4a5568;--light:#f7f8fc;
+  --radius:10px;
+  --font-head:'Fraunces',serif;--font-body:'DM Sans',sans-serif;
+}
+html,body{height:100%;font-family:var(--font-body);background:var(--light);color:#1a202c}
+#app{display:flex;flex-direction:column;min-height:100vh}
+
+/* NAV */
+.topnav{background:var(--navy);padding:0 2rem;display:flex;align-items:center;gap:2rem;height:58px;position:sticky;top:0;z-index:100;box-shadow:0 2px 12px rgba(0,0,0,0.25)}
+.logo{font-family:var(--font-head);font-size:1.1rem;color:var(--gold2);font-weight:700;white-space:nowrap}
+.logo span{color:#fff;font-weight:300;font-style:italic}
+.navlinks{display:flex;flex:1}
+.navlink{background:none;border:none;color:rgba(255,255,255,0.7);font-family:var(--font-body);font-size:0.82rem;padding:0 1rem;height:58px;cursor:pointer;border-bottom:2px solid transparent;transition:all 0.15s;text-transform:uppercase;letter-spacing:0.03em;white-space:nowrap}
+.navlink:hover{color:#fff;background:rgba(255,255,255,0.07)}
+.navlink.active{color:var(--gold2);border-bottom-color:var(--gold2)}
+.nav-right{display:flex;align-items:center;gap:12px;margin-left:auto}
+.notif-btn{background:rgba(255,255,255,0.1);border:none;color:#fff;width:32px;height:32px;border-radius:50%;cursor:pointer;font-size:14px;display:flex;align-items:center;justify-content:center;position:relative}
+.nbadge{position:absolute;top:-3px;right:-3px;background:var(--gold2);color:var(--navy);font-size:9px;font-weight:700;border-radius:50%;width:16px;height:16px;display:flex;align-items:center;justify-content:center}
+.avatar-chip{display:flex;align-items:center;gap:8px}
+.avatar{width:32px;height:32px;border-radius:50%;background:var(--gold);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:var(--navy)}
+.user-name{font-size:0.8rem;color:rgba(255,255,255,0.85)}
+
+/* LAYOUT */
+.main{display:flex;flex:1;min-height:calc(100vh - 58px)}
+.sidebar{width:220px;min-width:220px;background:#fff;border-right:1px solid #e2e8f0;padding:1.5rem 0;flex-shrink:0;overflow-y:auto}
+.sidebar-section{margin-bottom:1.5rem}
+.sidebar-label{font-size:0.68rem;font-weight:500;text-transform:uppercase;letter-spacing:0.08em;color:#a0aec0;padding:0 1.25rem;margin-bottom:0.5rem}
+.sidebar-item{display:flex;align-items:center;gap:10px;padding:0.55rem 1.25rem;cursor:pointer;font-size:0.85rem;color:var(--slate);border-left:3px solid transparent;transition:all 0.12s}
+.sidebar-item:hover{background:#f0f4ff;color:var(--navy)}
+.sidebar-item.active{background:#eef2ff;color:var(--navy2);border-left-color:var(--navy);font-weight:500}
+.sidebar-icon{font-size:15px}
+.sidebar-count{margin-left:auto;background:#e2e8f0;color:#4a5568;font-size:10px;font-weight:600;border-radius:20px;padding:1px 7px}
+.sidebar-count.red{background:#fee2e2;color:#c53030}
+.sidebar-count.amber{background:#fef3c7;color:#92400e}
+
+/* CONTENT */
+.content{flex:1;padding:2rem;overflow-y:auto}
+.page{display:none}
+.page.active{display:block}
+
+/* PAGE HEADER */
+.page-header{margin-bottom:1.75rem}
+.page-title{font-family:var(--font-head);font-size:1.7rem;font-weight:700;color:var(--navy);letter-spacing:-0.01em}
+.page-sub{font-size:0.88rem;color:#718096;margin-top:4px}
+.header-row{display:flex;align-items:flex-start;justify-content:space-between;gap:1rem;flex-wrap:wrap;margin-bottom:1.75rem}
+.header-row .page-header{margin-bottom:0}
+
+/* STAT CARDS */
+.stat-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:1rem;margin-bottom:2rem}
+.stat-card{background:#fff;border-radius:var(--radius);padding:1.25rem;border:1px solid #e2e8f0;position:relative;overflow:hidden}
+.stat-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px}
+.stat-card.blue::before{background:#3182ce}
+.stat-card.green::before{background:#38a169}
+.stat-card.red::before{background:#e53e3e}
+.stat-card.amber::before{background:#d97706}
+.stat-label{font-size:0.75rem;color:#718096;text-transform:uppercase;letter-spacing:0.05em;margin-bottom:8px}
+.stat-value{font-family:var(--font-head);font-size:2rem;font-weight:700;color:var(--navy);line-height:1}
+.stat-change{font-size:0.75rem;margin-top:6px;color:#48bb78}
+.stat-change.neg{color:#fc8181}
+
+/* CARDS */
+.card{background:#fff;border-radius:var(--radius);border:1px solid #e2e8f0;padding:1.5rem;margin-bottom:1.5rem}
+.card-title{font-family:var(--font-head);font-size:1rem;font-weight:500;color:var(--navy);margin-bottom:1rem}
+.card-title-row{display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem}
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:1.5rem;margin-bottom:1.5rem}
+
+/* TABLE */
+table{width:100%;border-collapse:collapse;font-size:0.84rem}
+th{text-align:left;padding:0.6rem 0.8rem;font-size:0.72rem;text-transform:uppercase;letter-spacing:0.05em;color:#718096;border-bottom:1px solid #e2e8f0;font-weight:500;white-space:nowrap}
+td{padding:0.75rem 0.8rem;border-bottom:1px solid #f0f4f8;color:#2d3748;vertical-align:middle}
+tr:last-child td{border-bottom:none}
+tr:hover td{background:#fafbff}
+
+/* BADGES */
+.bp{display:inline-flex;align-items:center;padding:3px 10px;border-radius:20px;font-size:0.72rem;font-weight:500;white-space:nowrap}
+.bp-green{background:#d4edda;color:#155724}
+.bp-red{background:#f8d7da;color:#721c24}
+.bp-amber{background:#fff3cd;color:#856404}
+.bp-blue{background:#d1ecf1;color:#0c5460}
+.bp-gray{background:#e2e8f0;color:#4a5568}
+.bp-purple{background:#e8d5fb;color:#553c9a}
+
+/* PROGRESS */
+.progress-bar{height:8px;background:#e2e8f0;border-radius:4px;overflow:hidden}
+.pf{height:100%;border-radius:4px;transition:width 0.5s}
+.pf-green{background:#38a169}
+.pf-amber{background:#d97706}
+.pf-red{background:#e53e3e}
+.pf-blue{background:#3182ce}
+
+/* BUTTONS */
+.btn{display:inline-flex;align-items:center;gap:6px;padding:0.5rem 1.1rem;border-radius:7px;font-size:0.82rem;font-weight:500;cursor:pointer;transition:all 0.12s;border:none;font-family:var(--font-body)}
+.btn-primary{background:var(--navy);color:#fff}.btn-primary:hover{background:var(--navy2)}
+.btn-outline{background:transparent;color:var(--navy);border:1px solid #cbd5e0}.btn-outline:hover{background:#f7f8fc}
+.btn-sm{padding:0.35rem 0.8rem;font-size:0.78rem}
+.btn-danger{background:#e53e3e;color:#fff}
+.btn-gold{background:var(--gold);color:var(--navy);font-weight:700}.btn-gold:hover{background:#d4aa2a}
+.btn-success{background:#38a169;color:#fff}
+
+/* FORMS */
+.form-group{margin-bottom:1.1rem}
+label.fl{display:block;font-size:0.8rem;font-weight:500;color:#4a5568;margin-bottom:5px}
+input.fi,select.fi,textarea.fi{width:100%;padding:0.55rem 0.8rem;border:1px solid #cbd5e0;border-radius:7px;font-size:0.85rem;font-family:var(--font-body);color:#2d3748;background:#fff;transition:border 0.15s;outline:none}
+input.fi:focus,select.fi:focus,textarea.fi:focus{border-color:var(--navy);box-shadow:0 0 0 2px rgba(15,32,68,0.1)}
+textarea.fi{resize:vertical;min-height:80px}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:1rem}
+
+/* TIMELINE */
+.timeline{position:relative;padding-left:24px}
+.timeline::before{content:'';position:absolute;left:8px;top:4px;bottom:4px;width:1px;background:#e2e8f0}
+.tl-item{position:relative;margin-bottom:1.25rem}
+.tl-dot{position:absolute;left:-20px;top:4px;width:12px;height:12px;border-radius:50%;border:2px solid #fff;box-shadow:0 0 0 1px #cbd5e0}
+.tl-dot.green{background:#38a169}.tl-dot.red{background:#e53e3e}.tl-dot.amber{background:#d97706}.tl-dot.blue{background:#3182ce}
+.tl-date{font-size:0.72rem;color:#a0aec0;margin-bottom:2px}
+.tl-text{font-size:0.84rem;color:#2d3748}
+.tl-sub{font-size:0.75rem;color:#718096}
+
+/* ALERT */
+.alert{padding:0.75rem 1rem;border-radius:7px;font-size:0.83rem;margin-bottom:1rem;display:flex;align-items:flex-start;gap:10px;border-left:4px solid}
+.alert-red{background:#fff5f5;border-color:#e53e3e;color:#742a2a}
+.alert-amber{background:#fffbeb;border-color:#d97706;color:#744210}
+.alert-blue{background:#ebf8ff;border-color:#3182ce;color:#1a365d}
+.alert-green{background:#f0fff4;border-color:#38a169;color:#1c4532}
+
+/* MODALS */
+.modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.45);z-index:200;align-items:center;justify-content:center}
+.modal-overlay.open{display:flex}
+.modal{background:#fff;border-radius:14px;padding:2rem;width:580px;max-width:96vw;max-height:88vh;overflow-y:auto;position:relative;box-shadow:0 8px 40px rgba(0,0,0,0.18)}
+.modal-title{font-family:var(--font-head);font-size:1.25rem;font-weight:700;color:var(--navy);margin-bottom:1.25rem;padding-right:2rem}
+.modal-close{position:absolute;top:1rem;right:1rem;background:none;border:none;font-size:1.2rem;cursor:pointer;color:#718096}
+
+/* CHECKLIST */
+.checklist-item{display:flex;align-items:flex-start;gap:10px;padding:0.75rem;border:1px solid #e2e8f0;border-radius:7px;margin-bottom:8px;cursor:pointer;transition:background 0.1s}
+.checklist-item:hover{background:#fafbff}
+.checklist-item.checked{background:#f0fff4;border-color:#c6f6d5}
+.check-box{width:18px;height:18px;border-radius:4px;border:2px solid #cbd5e0;flex-shrink:0;margin-top:1px;display:flex;align-items:center;justify-content:center;font-size:11px;color:#fff;transition:all 0.1s}
+.checklist-item.checked .check-box{background:#38a169;border-color:#38a169}
+.check-title{font-size:0.84rem;font-weight:500;color:#2d3748}
+.check-sub{font-size:0.76rem;color:#718096;margin-top:2px}
+
+/* SEARCH BAR */
+.search-bar{display:flex;align-items:center;gap:8px;background:#fff;border:1px solid #e2e8f0;border-radius:7px;padding:0 0.75rem;height:36px}
+.search-bar input{border:none;outline:none;font-size:0.84rem;font-family:var(--font-body);color:#2d3748;width:200px}
+
+/* TABS */
+.tab-bar{display:flex;border-bottom:1px solid #e2e8f0;margin-bottom:1.5rem}
+.tab-btn{background:none;border:none;padding:0.6rem 1.1rem;font-family:var(--font-body);font-size:0.84rem;color:#718096;cursor:pointer;border-bottom:2px solid transparent;transition:all 0.12s;margin-bottom:-1px;white-space:nowrap}
+.tab-btn.active{color:var(--navy);border-bottom-color:var(--navy);font-weight:500}
+.tab-content{display:none}.tab-content.active{display:block}
+
+/* NOTIFICATIONS */
+.notif-panel{position:fixed;top:62px;right:1.5rem;width:340px;background:#fff;border:1px solid #e2e8f0;border-radius:10px;box-shadow:0 4px 24px rgba(0,0,0,0.12);z-index:150;display:none}
+.notif-panel.open{display:block}
+.notif-header{padding:1rem;border-bottom:1px solid #e2e8f0;font-weight:500;font-size:0.9rem;color:var(--navy);display:flex;justify-content:space-between;align-items:center}
+.notif-markall{background:none;border:none;font-size:0.76rem;color:#718096;cursor:pointer}
+.notif-item{padding:0.75rem 1rem;border-bottom:1px solid #f0f4f8;cursor:pointer;display:flex;gap:10px;align-items:flex-start}
+.notif-item:hover{background:#fafbff}
+.notif-item.read{opacity:0.5}
+.notif-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;margin-top:4px}
+.notif-text{font-size:0.8rem;color:#2d3748}
+.notif-time{font-size:0.72rem;color:#a0aec0;margin-top:2px}
+.notif-empty{padding:1.5rem;text-align:center;color:#a0aec0;font-size:0.84rem}
+
+/* MISC */
+.filter-row{display:flex;align-items:center;gap:0.75rem;margin-bottom:1.25rem;flex-wrap:wrap}
+.tag{display:inline-block;padding:2px 8px;background:#eef2ff;color:#3730a3;border-radius:4px;font-size:0.72rem;font-weight:500}
+.mini-kpi-row{display:flex;gap:1rem;margin-bottom:1.5rem;flex-wrap:wrap}
+.mini-kpi{flex:1;min-width:80px;background:#fff;border:1px solid #e2e8f0;border-radius:8px;padding:1rem;text-align:center}
+.mk-val{font-family:var(--font-head);font-size:1.5rem;font-weight:700;color:var(--navy)}
+.mk-label{font-size:0.73rem;color:#718096;margin-top:3px}
+hr.div{border:none;border-top:1px solid #e2e8f0;margin:1.25rem 0}
+.section-label{font-size:0.72rem;text-transform:uppercase;letter-spacing:0.07em;font-weight:600;color:#a0aec0;margin-bottom:0.75rem}
+.donut-wrap{display:flex;align-items:center;gap:1.5rem}
+.donut-legend{display:flex;flex-direction:column;gap:8px}
+.dl-item{display:flex;align-items:center;gap:8px;font-size:0.8rem}
+.dl-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0}
+
+/* RISK MATRIX */
+.risk-matrix{display:grid;grid-template-columns:repeat(5,1fr);gap:4px;margin:0.75rem 0}
+.rm-cell{height:40px;border-radius:5px;display:flex;align-items:center;justify-content:center;font-size:0.7rem;font-weight:600}
+.rm-low{background:#d4edda;color:#155724}.rm-med{background:#fff3cd;color:#856404}
+.rm-high{background:#ffd7d7;color:#721c24}.rm-crit{background:#f8b4b4;color:#500}
+
+/* LOADING */
+.loading{text-align:center;padding:2.5rem;color:#a0aec0;font-size:0.9rem}
+.spin{display:inline-block;width:20px;height:20px;border:2px solid #e2e8f0;border-top-color:var(--navy);border-radius:50%;animation:spin 0.7s linear infinite;margin-right:8px;vertical-align:middle}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* TOAST */
+#toast{position:fixed;bottom:2rem;right:2rem;background:var(--navy);color:#fff;padding:0.75rem 1.25rem;border-radius:8px;font-size:0.84rem;box-shadow:0 4px 16px rgba(0,0,0,0.2);opacity:0;transition:opacity 0.3s;z-index:999;pointer-events:none;max-width:340px}
+
+/* RESPONSIVE */
+@media(max-width:960px){.stat-grid{grid-template-columns:1fr 1fr}.two-col{grid-template-columns:1fr}.sidebar{display:none}.navlinks{overflow-x:auto}}
+@media(max-width:600px){.stat-grid{grid-template-columns:1fr}.content{padding:1rem}.topnav{padding:0 1rem}.navlink{padding:0 0.5rem;font-size:0.7rem}.form-row{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<div id="app">
+
+<!-- TOP NAV -->
+<nav class="topnav">
+  <div class="logo">Veritas<span>Audit</span>&nbsp;|&nbsp;<span style="font-size:0.76rem;color:rgba(255,255,255,0.5);font-style:normal">Greenfield University</span></div>
+  <div class="navlinks">
+    <button class="navlink active" onclick="gotoPage('dashboard',this)">Dashboard</button>
+    <button class="navlink" onclick="gotoPage('audits',this)">Audits</button>
+    <button class="navlink" onclick="gotoPage('compliance',this)">Compliance</button>
+    <button class="navlink" onclick="gotoPage('risks',this)">Risk Register</button>
+    <button class="navlink" onclick="gotoPage('findings',this)">Findings</button>
+    <button class="navlink" onclick="gotoPage('reports',this)">Reports</button>
+    <button class="navlink" onclick="gotoPage('policies',this)">Policies</button>
+  </div>
+  <div class="nav-right">
+    <button class="notif-btn" id="notifBtn" onclick="toggleNotif(event)">🔔<span class="nbadge" id="notifBadge">0</span></button>
+    <div class="avatar-chip">
+      <div class="avatar">JM</div>
+      <span class="user-name">Dr. J. Mitchell</span>
+    </div>
+  </div>
+</nav>
+
+<!-- NOTIFICATIONS PANEL -->
+<div class="notif-panel" id="notifPanel">
+  <div class="notif-header">Notifications
+    <button class="notif-markall" onclick="markAllNotifRead()">Mark all read</button>
+  </div>
+  <div id="notif-list"><div class="notif-empty">Loading…</div></div>
+</div>
+
+<!-- MAIN -->
+<div class="main">
+  <aside class="sidebar">
+    <div class="sidebar-section">
+      <div class="sidebar-label">Overview</div>
+      <div class="sidebar-item active" id="sb-dashboard" onclick="gotoPageSb('dashboard',this)"><span class="sidebar-icon">📊</span>Dashboard</div>
+      <div class="sidebar-item" id="sb-compliance" onclick="gotoPageSb('compliance',this)"><span class="sidebar-icon">✅</span>Compliance<span class="sidebar-count amber" id="sb-comp-count">—</span></div>
+    </div>
+    <div class="sidebar-section">
+      <div class="sidebar-label">Audit Management</div>
+      <div class="sidebar-item" id="sb-audits" onclick="gotoPageSb('audits',this)"><span class="sidebar-icon">📋</span>All Audits<span class="sidebar-count" id="sb-audit-count">—</span></div>
+      <div class="sidebar-item" id="sb-findings" onclick="gotoPageSb('findings',this)"><span class="sidebar-icon">🔍</span>Findings<span class="sidebar-count red" id="sb-find-count">—</span></div>
+    </div>
+    <div class="sidebar-section">
+      <div class="sidebar-label">Governance</div>
+      <div class="sidebar-item" id="sb-risks" onclick="gotoPageSb('risks',this)"><span class="sidebar-icon">⚠️</span>Risk Register</div>
+      <div class="sidebar-item" id="sb-policies" onclick="gotoPageSb('policies',this)"><span class="sidebar-icon">📄</span>Policies</div>
+      <div class="sidebar-item" id="sb-reports" onclick="gotoPageSb('reports',this)"><span class="sidebar-icon">📈</span>Reports</div>
+    </div>
+    <div class="sidebar-section">
+      <div class="sidebar-label">Quick Actions</div>
+      <div class="sidebar-item" onclick="openModal('newAuditModal')"><span class="sidebar-icon">➕</span>New Audit</div>
+      <div class="sidebar-item" onclick="openModal('newFindingModal')"><span class="sidebar-icon">🚩</span>Log Finding</div>
+      <div class="sidebar-item" onclick="openModal('newRiskModal')"><span class="sidebar-icon">🎯</span>Log Risk</div>
+    </div>
+  </aside>
+
+  <main class="content">
+
+    <!-- ═══════ DASHBOARD ═══════ -->
+    <div class="page active" id="page-dashboard">
+      <div class="header-row">
+        <div class="page-header"><div class="page-title">Compliance Dashboard</div><div class="page-sub">Academic Year 2024–25 &nbsp;·&nbsp; Last updated: <span id="dash-updated">Loading…</span></div></div>
+        <div style="display:flex;gap:8px;padding-top:0.3rem">
+          <button class="btn btn-outline btn-sm" onclick="openModal('newAuditModal')">+ New Audit</button>
+          <button class="btn btn-primary btn-sm" onclick="gotoPage('reports',null)">Generate Report</button>
+        </div>
+      </div>
+      <div class="alert alert-amber" id="dash-alert" style="display:none">⚠️ <div id="dash-alert-text"></div></div>
+      <div class="stat-grid">
+        <div class="stat-card blue"><div class="stat-label">Overall Compliance Score</div><div class="stat-value" id="stat-score">—</div><div class="stat-change">↑ 3% from last quarter</div></div>
+        <div class="stat-card green"><div class="stat-label">Active Audits</div><div class="stat-value" id="stat-active">—</div><div class="stat-change" id="stat-active-sub">—</div></div>
+        <div class="stat-card red"><div class="stat-label">Open Findings</div><div class="stat-value" id="stat-findings">—</div><div class="stat-change neg" id="stat-findings-sub">—</div></div>
+        <div class="stat-card amber"><div class="stat-label">Policies Due Review</div><div class="stat-value" id="stat-policies">—</div><div class="stat-change neg" id="stat-policies-sub">—</div></div>
+      </div>
+      <div class="two-col">
+        <div class="card" style="margin-bottom:0"><div class="card-title">Compliance by Department</div><div id="dept-bars"><div class="loading"><span class="spin"></span>Loading…</div></div></div>
+        <div class="card" style="margin-bottom:0">
+          <div class="card-title">Audit Status Overview</div>
+          <div class="donut-wrap">
+            <svg width="120" height="120" viewBox="0 0 120 120" id="donut-svg">
+              <circle cx="60" cy="60" r="46" fill="none" stroke="#e2e8f0" stroke-width="16"/>
+            </svg>
+            <div class="donut-legend" id="donut-legend"></div>
+          </div>
+        </div>
+      </div>
+      <div style="height:1.5rem"></div>
+      <div class="two-col">
+        <div class="card" style="margin-bottom:0"><div class="card-title">Recent Activity</div><div class="timeline" id="activity-list"><div class="loading"><span class="spin"></span>Loading…</div></div></div>
+        <div class="card" style="margin-bottom:0"><div class="card-title">Upcoming Deadlines</div><div style="overflow-x:auto"><table><thead><tr><th>Item</th><th>Due</th><th>Status</th></tr></thead><tbody id="deadlines-tbody"><tr><td colspan="3" class="loading">Loading…</td></tr></tbody></table></div></div>
+      </div>
+    </div>
+
+    <!-- ═══════ AUDITS ═══════ -->
+    <div class="page" id="page-audits">
+      <div class="header-row">
+        <div class="page-header"><div class="page-title">Audit Management</div><div class="page-sub">Track, manage and review all university audits</div></div>
+        <button class="btn btn-primary" onclick="openModal('newAuditModal')">+ New Audit</button>
+      </div>
+      <div class="tab-bar">
+        <button class="tab-btn active" onclick="switchTab(this,'tab-all-audits');loadAudits('')">All Audits</button>
+        <button class="tab-btn" onclick="switchTab(this,'tab-inprogress');loadAudits('In Progress')">In Progress</button>
+        <button class="tab-btn" onclick="switchTab(this,'tab-completed-audits');loadAudits('Completed')">Completed</button>
+        <button class="tab-btn" onclick="switchTab(this,'tab-overdue-audits');loadAudits('Overdue')">Overdue</button>
+        <button class="tab-btn" onclick="switchTab(this,'tab-pending-audits');loadAudits('Pending')">Pending</button>
+      </div>
+      <div class="filter-row">
+        <div class="search-bar"><span style="color:#a0aec0;font-size:14px">🔍</span><input type="text" id="audit-search" placeholder="Search audits…" oninput="debounce(()=>loadAudits(''),300)"></div>
+        <select class="fi" style="width:160px" id="audit-type-filter" onchange="loadAudits('')">
+          <option value="">All Types</option><option>Financial</option><option>IT Security</option><option>HR</option><option>Academic</option>
+        </select>
+        <select class="fi" style="width:160px" id="audit-dept-filter" onchange="loadAudits('')">
+          <option value="">All Departments</option><option>Finance</option><option>IT Services</option><option>Human Resources</option><option>Research Office</option><option>Registry</option><option>Estates</option>
+        </select>
+      </div>
+      <div class="tab-content active" id="tab-all-audits">
+        <div class="card" style="padding:0;overflow:hidden;margin-bottom:0"><div style="overflow-x:auto"><table><thead><tr><th>Audit</th><th>Type</th><th>Dept</th><th>Lead</th><th>Start</th><th>Due</th><th>Status</th><th>Score</th><th>Actions</th></tr></thead><tbody id="audits-tbody"><tr><td colspan="9" class="loading"><span class="spin"></span>Loading…</td></tr></tbody></table></div></div>
+      </div>
+      <div class="tab-content" id="tab-inprogress"><div id="inprogress-content"></div></div>
+      <div class="tab-content" id="tab-completed-audits"><div id="completed-content"></div></div>
+      <div class="tab-content" id="tab-overdue-audits">
+        <div class="alert alert-red">🚨 <div>Overdue audits require immediate action to maintain compliance standing.</div></div>
+        <div id="overdue-content"></div>
+      </div>
+      <div class="tab-content" id="tab-pending-audits"><div id="pending-content"></div></div>
+    </div>
+
+    <!-- ═══════ COMPLIANCE ═══════ -->
+    <div class="page" id="page-compliance">
+      <div class="header-row">
+        <div class="page-header"><div class="page-title">Compliance Status</div><div class="page-sub">Regulatory and policy compliance across all areas</div></div>
+        <button class="btn btn-primary" onclick="openModal('newChecklistModal')">+ New Checklist</button>
+      </div>
+      <div class="mini-kpi-row" id="compliance-kpis"><div class="loading"><span class="spin"></span>Loading…</div></div>
+      <div class="two-col">
+        <div class="card" style="margin-bottom:0">
+          <div class="card-title-row"><div class="card-title" style="margin-bottom:0">Compliance Checklist</div><div style="font-size:0.78rem;color:#a0aec0" id="check-progress">—</div></div>
+          <div id="checklist-container"><div class="loading"><span class="spin"></span>Loading…</div></div>
+        </div>
+        <div>
+          <div class="card" style="margin-bottom:0">
+            <div class="card-title">Regulatory Frameworks</div>
+            <div id="frameworks-list"><div class="loading"><span class="spin"></span>Loading…</div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══════ RISK REGISTER ═══════ -->
+    <div class="page" id="page-risks">
+      <div class="header-row">
+        <div class="page-header"><div class="page-title">Risk Register</div><div class="page-sub">University-wide risk identification, assessment and mitigation</div></div>
+        <button class="btn btn-primary" onclick="openModal('newRiskModal')">+ Log Risk</button>
+      </div>
+      <div class="two-col" style="margin-bottom:1.5rem">
+        <div class="card" style="margin-bottom:0">
+          <div class="card-title">Risk Heat Map</div>
+          <div style="font-size:0.72rem;color:#718096;margin-bottom:8px;text-align:center">Impact (rows) vs Likelihood (columns)</div>
+          <div style="display:grid;grid-template-columns:auto 1fr;gap:6px;align-items:center">
+            <div style="writing-mode:vertical-rl;transform:rotate(180deg);text-align:center;font-size:0.7rem;color:#718096">Impact →</div>
+            <div>
+              <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:4px;margin-bottom:4px">
+                <div style="text-align:center;font-size:0.65rem;color:#718096">Rare</div><div style="text-align:center;font-size:0.65rem;color:#718096">Unlikely</div><div style="text-align:center;font-size:0.65rem;color:#718096">Possible</div><div style="text-align:center;font-size:0.65rem;color:#718096">Likely</div><div style="text-align:center;font-size:0.65rem;color:#718096">Almost</div>
+              </div>
+              <div class="risk-matrix">
+                <div class="rm-cell rm-low">1</div><div class="rm-cell rm-low">2</div><div class="rm-cell rm-med">3</div><div class="rm-cell rm-med">4</div><div class="rm-cell rm-high">5</div>
+                <div class="rm-cell rm-low">2</div><div class="rm-cell rm-med">4</div><div class="rm-cell rm-med">6</div><div class="rm-cell rm-high">8</div><div class="rm-cell rm-high">10</div>
+                <div class="rm-cell rm-med">3</div><div class="rm-cell rm-med">6</div><div class="rm-cell rm-high">9</div><div class="rm-cell rm-high">12</div><div class="rm-cell rm-crit">15</div>
+                <div class="rm-cell rm-med">4</div><div class="rm-cell rm-high">8</div><div class="rm-cell rm-high">12</div><div class="rm-cell rm-crit">16</div><div class="rm-cell rm-crit">20</div>
+                <div class="rm-cell rm-high">5</div><div class="rm-cell rm-high">10</div><div class="rm-cell rm-crit">15</div><div class="rm-cell rm-crit">20</div><div class="rm-cell rm-crit">25</div>
+              </div>
+            </div>
+          </div>
+          <div style="display:flex;gap:12px;margin-top:1rem;flex-wrap:wrap">
+            <div class="dl-item"><div style="width:12px;height:12px;border-radius:2px;background:#d4edda"></div>&nbsp;<span style="font-size:0.74rem">Low</span></div>
+            <div class="dl-item"><div style="width:12px;height:12px;border-radius:2px;background:#fff3cd"></div>&nbsp;<span style="font-size:0.74rem">Medium</span></div>
+            <div class="dl-item"><div style="width:12px;height:12px;border-radius:2px;background:#ffd7d7"></div>&nbsp;<span style="font-size:0.74rem">High</span></div>
+            <div class="dl-item"><div style="width:12px;height:12px;border-radius:2px;background:#f8b4b4"></div>&nbsp;<span style="font-size:0.74rem">Critical</span></div>
+          </div>
+        </div>
+        <div class="card" style="margin-bottom:0">
+          <div class="card-title">Risk Summary</div>
+          <div class="mini-kpi-row" id="risk-summary-kpis"><div class="loading"><span class="spin"></span>Loading…</div></div>
+          <hr class="div">
+          <div class="section-label">Top Risks Requiring Attention</div>
+          <div id="top-risks-list"><div class="loading"><span class="spin"></span>Loading…</div></div>
+        </div>
+      </div>
+      <div class="card" style="padding:0;overflow:hidden">
+        <div style="padding:1rem 1.25rem;border-bottom:1px solid #e2e8f0;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:0.75rem">
+          <div style="font-family:var(--font-head);font-size:1rem;font-weight:500;color:var(--navy)">Full Risk Register</div>
+          <div class="search-bar"><span style="color:#a0aec0;font-size:14px">🔍</span><input type="text" id="risk-search" placeholder="Search risks…" oninput="debounce(loadRisks,300)"></div>
+        </div>
+        <div style="overflow-x:auto"><table><thead><tr><th>ID</th><th>Description</th><th>Category</th><th>Owner</th><th>L</th><th>I</th><th>Score</th><th>Rating</th><th>Actions</th></tr></thead><tbody id="risks-tbody"><tr><td colspan="9" class="loading"><span class="spin"></span>Loading…</td></tr></tbody></table></div>
+      </div>
+    </div>
+
+    <!-- ═══════ FINDINGS ═══════ -->
+    <div class="page" id="page-findings">
+      <div class="header-row">
+        <div class="page-header"><div class="page-title">Audit Findings</div><div class="page-sub">Log, track and resolve findings from all audit activities</div></div>
+        <button class="btn btn-primary" onclick="openModal('newFindingModal')">+ Log Finding</button>
+      </div>
+      <div class="stat-grid" id="findings-stat-grid">
+        <div class="stat-card red"><div class="stat-label">Critical</div><div class="stat-value" id="fc-critical">—</div></div>
+        <div class="stat-card amber"><div class="stat-label">High</div><div class="stat-value" id="fc-high">—</div></div>
+        <div class="stat-card blue"><div class="stat-label">Medium</div><div class="stat-value" id="fc-medium">—</div></div>
+        <div class="stat-card green"><div class="stat-label">Low / Info</div><div class="stat-value" id="fc-low">—</div></div>
+      </div>
+      <div class="card" style="padding:0;overflow:hidden">
+        <div style="padding:1rem 1.25rem;border-bottom:1px solid #e2e8f0;display:flex;align-items:center;gap:0.75rem;flex-wrap:wrap">
+          <div class="search-bar"><span style="color:#a0aec0;font-size:14px">🔍</span><input type="text" id="finding-search" placeholder="Search findings…" oninput="debounce(loadFindings,300)"></div>
+          <select class="fi" style="width:150px" id="finding-sev-filter" onchange="loadFindings()">
+            <option value="">All Severity</option><option>Critical</option><option>High</option><option>Medium</option><option>Low</option>
+          </select>
+          <select class="fi" style="width:150px" id="finding-status-filter" onchange="loadFindings()">
+            <option value="">All Status</option><option>Open</option><option>In Progress</option><option>Resolved</option>
+          </select>
+        </div>
+        <div style="overflow-x:auto"><table><thead><tr><th>ID</th><th>Finding</th><th>Audit</th><th>Severity</th><th>Owner</th><th>Due</th><th>Status</th><th>Actions</th></tr></thead><tbody id="findings-tbody"><tr><td colspan="8" class="loading"><span class="spin"></span>Loading…</td></tr></tbody></table></div>
+      </div>
+    </div>
+
+    <!-- ═══════ REPORTS ═══════ -->
+    <div class="page" id="page-reports">
+      <div class="header-row">
+        <div class="page-header"><div class="page-title">Reports &amp; Analytics</div><div class="page-sub">Generate, view and download compliance and audit reports</div></div>
+        <button class="btn btn-gold" onclick="openModal('genReportModal')">Generate Report</button>
+      </div>
+      <div class="two-col">
+        <div class="card" style="margin-bottom:0">
+          <div class="card-title">Compliance Score Trend</div>
+          <svg viewBox="0 0 400 165" style="width:100%;height:165px" id="trend-chart">
+            <line x1="40" y1="20" x2="390" y2="20" stroke="#e2e8f0" stroke-width="1"/>
+            <line x1="40" y1="60" x2="390" y2="60" stroke="#e2e8f0" stroke-width="1"/>
+            <line x1="40" y1="100" x2="390" y2="100" stroke="#e2e8f0" stroke-width="1"/>
+            <line x1="40" y1="140" x2="390" y2="140" stroke="#e2e8f0" stroke-width="1"/>
+            <text x="32" y="24" text-anchor="end" font-size="10" fill="#a0aec0">100</text>
+            <text x="32" y="64" text-anchor="end" font-size="10" fill="#a0aec0">90</text>
+            <text x="32" y="104" text-anchor="end" font-size="10" fill="#a0aec0">80</text>
+            <text x="32" y="144" text-anchor="end" font-size="10" fill="#a0aec0">70</text>
+            <g id="trend-path"></g>
+          </svg>
+        </div>
+        <div class="card" style="margin-bottom:0">
+          <div class="card-title">Findings by Severity (Last 6 Months)</div>
+          <svg viewBox="0 0 380 165" style="width:100%;height:165px">
+            <line x1="35" y1="10" x2="35" y2="130" stroke="#e2e8f0" stroke-width="1"/>
+            <line x1="35" y1="130" x2="370" y2="130" stroke="#e2e8f0" stroke-width="1"/>
+            <rect x="40" y="90" width="14" height="40" fill="#e53e3e" rx="2"/><rect x="56" y="70" width="14" height="60" fill="#d97706" rx="2"/><rect x="72" y="80" width="14" height="50" fill="#3182ce" rx="2"/>
+            <rect x="93" y="80" width="14" height="50" fill="#e53e3e" rx="2"/><rect x="109" y="60" width="14" height="70" fill="#d97706" rx="2"/><rect x="125" y="75" width="14" height="55" fill="#3182ce" rx="2"/>
+            <rect x="146" y="70" width="14" height="60" fill="#e53e3e" rx="2"/><rect x="162" y="75" width="14" height="55" fill="#d97706" rx="2"/><rect x="178" y="85" width="14" height="45" fill="#3182ce" rx="2"/>
+            <rect x="199" y="100" width="14" height="30" fill="#e53e3e" rx="2"/><rect x="215" y="80" width="14" height="50" fill="#d97706" rx="2"/><rect x="231" y="90" width="14" height="40" fill="#3182ce" rx="2"/>
+            <rect x="252" y="95" width="14" height="35" fill="#e53e3e" rx="2"/><rect x="268" y="85" width="14" height="45" fill="#d97706" rx="2"/><rect x="284" y="95" width="14" height="35" fill="#3182ce" rx="2"/>
+            <text x="54" y="148" text-anchor="middle" font-size="9" fill="#a0aec0">Nov</text><text x="110" y="148" text-anchor="middle" font-size="9" fill="#a0aec0">Dec</text><text x="163" y="148" text-anchor="middle" font-size="9" fill="#a0aec0">Jan</text><text x="215" y="148" text-anchor="middle" font-size="9" fill="#a0aec0">Feb</text><text x="262" y="148" text-anchor="middle" font-size="9" fill="#a0aec0">Mar</text>
+            <rect x="316" y="40" width="10" height="10" fill="#e53e3e" rx="2"/><text x="330" y="50" font-size="10" fill="#4a5568">Critical</text>
+            <rect x="316" y="58" width="10" height="10" fill="#d97706" rx="2"/><text x="330" y="68" font-size="10" fill="#4a5568">High</text>
+            <rect x="316" y="76" width="10" height="10" fill="#3182ce" rx="2"/><text x="330" y="86" font-size="10" fill="#4a5568">Medium</text>
+          </svg>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-title-row"><div class="card-title" style="margin-bottom:0">Available Reports</div><button class="btn btn-outline btn-sm" onclick="openModal('genReportModal')">+ Custom Report</button></div>
+        <div style="overflow-x:auto"><table><thead><tr><th>Report Name</th><th>Type</th><th>Generated</th><th>Period</th><th>Formats</th><th>Actions</th></tr></thead><tbody id="reports-tbody"><tr><td colspan="6" class="loading"><span class="spin"></span>Loading…</td></tr></tbody></table></div>
+      </div>
+    </div>
+
+    <!-- ═══════ POLICIES ═══════ -->
+    <div class="page" id="page-policies">
+      <div class="header-row">
+        <div class="page-header"><div class="page-title">Policy Register</div><div class="page-sub">University policies, procedures and regulatory documents</div></div>
+        <button class="btn btn-primary" onclick="openModal('newPolicyModal')">+ Add Policy</button>
+      </div>
+      <div class="filter-row">
+        <div class="search-bar"><span style="color:#a0aec0;font-size:14px">🔍</span><input type="text" id="policy-search" placeholder="Search policies…" oninput="debounce(loadPolicies,300)"></div>
+        <select class="fi" style="width:170px" id="policy-cat-filter" onchange="loadPolicies()">
+          <option value="">All Categories</option><option>Data &amp; Privacy</option><option>Finance</option><option>HR</option><option>Academic</option><option>IT Security</option><option>Health &amp; Safety</option>
+        </select>
+        <select class="fi" style="width:150px" id="policy-status-filter" onchange="loadPolicies()">
+          <option value="">All Status</option><option>Current</option><option>Due Review</option><option>Overdue</option><option>Under Review</option>
+        </select>
+      </div>
+      <div class="card" style="padding:0;overflow:hidden">
+        <div style="overflow-x:auto"><table><thead><tr><th>Policy Name</th><th>Category</th><th>Version</th><th>Owner</th><th>Last Review</th><th>Next Review</th><th>Status</th><th>Actions</th></tr></thead><tbody id="policies-tbody"><tr><td colspan="8" class="loading"><span class="spin"></span>Loading…</td></tr></tbody></table></div>
+      </div>
+    </div>
+
+  </main>
+</div>
+</div>
+
+<!-- TOAST -->
+<div id="toast"></div>
+
+<!-- ═══════════════ MODALS ═══════════════ -->
+
+<!-- New Audit -->
+<div class="modal-overlay" id="newAuditModal" onclick="overlayClose(event,'newAuditModal')">
+  <div class="modal">
+    <button class="modal-close" onclick="closeModal('newAuditModal')">✕</button>
+    <div class="modal-title">Create New Audit</div>
+    <div class="form-group"><label class="fl">Audit Name *</label><input class="fi" id="na-name" placeholder="e.g. IT Security Review 2026"></div>
+    <div class="form-row">
+      <div class="form-group"><label class="fl">Type *</label><select class="fi" id="na-type"><option>Financial</option><option>IT Security</option><option>HR</option><option>Academic</option><option>Research Ethics</option><option>Estates Safety</option><option>Procurement</option></select></div>
+      <div class="form-group"><label class="fl">Department *</label><select class="fi" id="na-dept"><option>Finance</option><option>IT Services</option><option>Human Resources</option><option>Research Office</option><option>Registry</option><option>Estates</option><option>Library</option></select></div>
+    </div>
+    <div class="form-row">
+      <div class="form-group"><label class="fl">Lead Auditor *</label><input class="fi" id="na-lead" placeholder="Auditor name"></div>
+      <div class="form-group"><label class="fl">Priority</label><select class="fi" id="na-priority"><option>High</option><option>Medium</option><option>Low</option></select></div>
+    </div>
+    <div class="form-row">
+      <div class="form-group"><label class="fl">Start Date</label><input class="fi" type="date" id="na-start"></div>
+      <div class="form-group"><label class="fl">Due Date</label><input class="fi" type="date" id="na-due"></div>
+    </div>
+    <div class="form-group"><label class="fl">Scope &amp; Objectives</label><textarea class="fi" id="na-scope" placeholder="Describe the scope, objectives and methodology…"></textarea></div>
+    <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:1rem">
+      <button class="btn btn-outline" onclick="closeModal('newAuditModal')">Cancel</button>
+      <button class="btn btn-primary" id="na-submit" onclick="submitAudit()">Create Audit</button>
+    </div>
+  </div>
+</div>
+
+<!-- New Finding -->
+<div class="modal-overlay" id="newFindingModal" onclick="overlayClose(event,'newFindingModal')">
+  <div class="modal">
+    <button class="modal-close" onclick="closeModal('newFindingModal')">✕</button>
+    <div class="modal-title">Log New Finding</div>
+    <div class="form-group"><label class="fl">Finding Title *</label><input class="fi" id="nf-title" placeholder="Short descriptive title"></div>
+    <div class="form-row">
+      <div class="form-group"><label class="fl">Related Audit</label>
+        <select class="fi" id="nf-audit">
+          <option value="">— Select Audit —</option>
+        </select>
+      </div>
+      <div class="form-group"><label class="fl">Severity *</label><select class="fi" id="nf-severity"><option>Critical</option><option>High</option><option>Medium</option><option>Low</option><option>Informational</option></select></div>
+    </div>
+    <div class="form-group"><label class="fl">Description</label><textarea class="fi" id="nf-desc" placeholder="Describe the finding in detail…"></textarea></div>
+    <div class="form-group"><label class="fl">Recommended Action</label><textarea class="fi" id="nf-action" placeholder="Recommended remediation steps…" style="min-height:60px"></textarea></div>
+    <div class="form-row">
+      <div class="form-group"><label class="fl">Assigned To *</label><input class="fi" id="nf-owner" placeholder="Owner name / team"></div>
+      <div class="form-group"><label class="fl">Due Date</label><input class="fi" type="date" id="nf-due"></div>
+    </div>
+    <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:1rem">
+      <button class="btn btn-outline" onclick="closeModal('newFindingModal')">Cancel</button>
+      <button class="btn btn-danger" id="nf-submit" onclick="submitFinding()">Log Finding</button>
+    </div>
+  </div>
+</div>
+
+<!-- New Risk -->
+<div class="modal-overlay" id="newRiskModal" onclick="overlayClose(event,'newRiskModal')">
+  <div class="modal">
+    <button class="modal-close" onclick="closeModal('newRiskModal')">✕</button>
+    <div class="modal-title">Log New Risk</div>
+    <div class="form-group"><label class="fl">Risk Description *</label><textarea class="fi" id="nr-desc" placeholder="Describe the risk clearly…"></textarea></div>
+    <div class="form-row">
+      <div class="form-group"><label class="fl">Category *</label><select class="fi" id="nr-cat"><option>IT / Cybersecurity</option><option>Financial</option><option>Data Protection</option><option>Academic</option><option>Health &amp; Safety</option><option>Reputational</option><option>Procurement</option></select></div>
+      <div class="form-group"><label class="fl">Risk Owner *</label><input class="fi" id="nr-owner" placeholder="Department / person"></div>
+    </div>
+    <div class="form-row">
+      <div class="form-group"><label class="fl">Likelihood (1–5) *</label><input class="fi" type="number" min="1" max="5" id="nr-like" placeholder="1–5" oninput="calcRisk()"></div>
+      <div class="form-group"><label class="fl">Impact (1–5) *</label><input class="fi" type="number" min="1" max="5" id="nr-impact" placeholder="1–5" oninput="calcRisk()"></div>
+    </div>
+    <div style="padding:0.75rem;background:#f7f8fc;border-radius:7px;display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem;border:1px solid #e2e8f0">
+      <span style="font-size:0.82rem;color:#4a5568">Calculated Risk Score:</span>
+      <span style="font-size:1.2rem;font-weight:700;color:var(--navy)" id="risk-score-display">—</span>
+    </div>
+    <div class="form-group"><label class="fl">Existing Mitigations</label><textarea class="fi" id="nr-mit" placeholder="List current controls and mitigations…" style="min-height:60px"></textarea></div>
+    <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:1rem">
+      <button class="btn btn-outline" onclick="closeModal('newRiskModal')">Cancel</button>
+      <button class="btn btn-primary" id="nr-submit" onclick="submitRisk()">Log Risk</button>
+    </div>
+  </div>
+</div>
+
+<!-- New Policy -->
+<div class="modal-overlay" id="newPolicyModal" onclick="overlayClose(event,'newPolicyModal')">
+  <div class="modal">
+    <button class="modal-close" onclick="closeModal('newPolicyModal')">✕</button>
+    <div class="modal-title">Add New Policy</div>
+    <div class="form-group"><label class="fl">Policy Name *</label><input class="fi" id="np-name" placeholder="Full policy title"></div>
+    <div class="form-row">
+      <div class="form-group"><label class="fl">Category *</label><select class="fi" id="np-cat"><option>Data &amp; Privacy</option><option>Finance</option><option>HR</option><option>Academic</option><option>IT Security</option><option>Health &amp; Safety</option></select></div>
+      <div class="form-group"><label class="fl">Version</label><input class="fi" id="np-ver" placeholder="e.g. 1.0" value="1.0"></div>
+    </div>
+    <div class="form-row">
+      <div class="form-group"><label class="fl">Policy Owner *</label><input class="fi" id="np-owner" placeholder="Department or role"></div>
+      <div class="form-group"><label class="fl">Review Frequency</label><select class="fi" id="np-freq"><option>Annual</option><option>Biennial</option><option>Every 3 years</option></select></div>
+    </div>
+    <div class="form-row">
+      <div class="form-group"><label class="fl">Effective Date</label><input class="fi" type="date" id="np-eff"></div>
+      <div class="form-group"><label class="fl">Next Review Date</label><input class="fi" type="date" id="np-next"></div>
+    </div>
+    <div class="form-group"><label class="fl">Policy Summary</label><textarea class="fi" id="np-summary" placeholder="Brief description of the policy scope…"></textarea></div>
+    <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:1rem">
+      <button class="btn btn-outline" onclick="closeModal('newPolicyModal')">Cancel</button>
+      <button class="btn btn-primary" id="np-submit" onclick="submitPolicy()">Add Policy</button>
+    </div>
+  </div>
+</div>
+
+<!-- Generate Report -->
+<div class="modal-overlay" id="genReportModal" onclick="overlayClose(event,'genReportModal')">
+  <div class="modal">
+    <button class="modal-close" onclick="closeModal('genReportModal')">✕</button>
+    <div class="modal-title">Generate Report</div>
+    <div class="form-group"><label class="fl">Report Type</label><select class="fi" id="gr-type"><option>Compliance Summary Report</option><option>Audit Status Report</option><option>Risk Assessment Report</option><option>Findings Register Report</option><option>Policy Review Report</option><option>Executive Dashboard Report</option></select></div>
+    <div class="form-row">
+      <div class="form-group"><label class="fl">Period From</label><input class="fi" type="date" id="gr-from"></div>
+      <div class="form-group"><label class="fl">Period To</label><input class="fi" type="date" id="gr-to"></div>
+    </div>
+    <div class="form-row">
+      <div class="form-group"><label class="fl">Output Format</label><select class="fi"><option>PDF</option><option>Excel</option><option>Word</option></select></div>
+      <div class="form-group"><label class="fl">Include Charts</label><select class="fi"><option>Yes</option><option>No</option></select></div>
+    </div>
+    <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:1rem">
+      <button class="btn btn-outline" onclick="closeModal('genReportModal')">Cancel</button>
+      <button class="btn btn-gold" onclick="generateReport()">Generate Report</button>
+    </div>
+  </div>
+</div>
+
+<!-- New Checklist -->
+<div class="modal-overlay" id="newChecklistModal" onclick="overlayClose(event,'newChecklistModal')">
+  <div class="modal">
+    <button class="modal-close" onclick="closeModal('newChecklistModal')">✕</button>
+    <div class="modal-title">New Compliance Checklist</div>
+    <div class="form-group"><label class="fl">Checklist Name</label><input class="fi" placeholder="e.g. GDPR Annual Checklist 2026"></div>
+    <div class="form-row">
+      <div class="form-group"><label class="fl">Framework</label><select class="fi"><option>GDPR</option><option>ISO 27001</option><option>QAA Standards</option><option>Office for Students</option><option>Equality Act</option></select></div>
+      <div class="form-group"><label class="fl">Assigned To</label><input class="fi" placeholder="Team or person"></div>
+    </div>
+    <div class="form-group"><label class="fl">Due Date</label><input class="fi" type="date"></div>
+    <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:1rem">
+      <button class="btn btn-outline" onclick="closeModal('newChecklistModal')">Cancel</button>
+      <button class="btn btn-primary" onclick="closeModal('newChecklistModal');showToast('Checklist created successfully!')">Create Checklist</button>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ═══════════════════════════════════════
+   API HELPERS
+═══════════════════════════════════════ */
+const API = '';  // same origin
+
+async function api(path, options={}) {
+  try {
+    const res = await fetch(API + path, {
+      headers: {'Content-Type':'application/json'},
+      ...options
+    });
+    if (!res.ok) {
+      const err = await res.json().catch(()=>({error:'Request failed'}));
+      throw new Error(err.error || `HTTP ${res.status}`);
+    }
+    return await res.json();
+  } catch(e) {
+    showToast('Error: ' + e.message, true);
+    throw e;
+  }
+}
+
+const get  = path => api(path);
+const post = (path, body) => api(path, {method:'POST', body:JSON.stringify(body)});
+const put  = (path, body) => api(path, {method:'PUT',  body:JSON.stringify(body)});
+const del  = path => api(path, {method:'DELETE'});
+
+/* ═══════════════════════════════════════
+   UTILITIES
+═══════════════════════════════════════ */
+let toastTimer;
+function showToast(msg, isError=false) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.style.background = isError ? '#c53030' : '#0f2044';
+  t.style.opacity = '1';
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => { t.style.opacity = '0'; }, 3500);
+}
+
+let debounceTimer;
+function debounce(fn, ms) {
+  clearTimeout(debounceTimer);
+  debounceTimer = setTimeout(fn, ms);
+}
+
+function openModal(id) { document.getElementById(id).classList.add('open'); }
+function closeModal(id) { document.getElementById(id).classList.remove('open'); }
+function overlayClose(e, id) { if (e.target === e.currentTarget) closeModal(id); }
+
+function switchTab(btn, tabId) {
+  btn.closest('.tab-bar').querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  btn.closest('.page').querySelectorAll('.tab-content').forEach(t=>t.classList.remove('active'));
+  document.getElementById(tabId).classList.add('active');
+}
+
+function gotoPage(id, btn) {
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.getElementById('page-'+id).classList.add('active');
+  document.querySelectorAll('.navlink').forEach(n=>n.classList.remove('active'));
+  if (btn) btn.classList.add('active');
+  document.querySelectorAll('.sidebar-item').forEach(s=>s.classList.remove('active'));
+  const sb = document.getElementById('sb-'+id);
+  if (sb) sb.classList.add('active');
+  pageLoaders[id] && pageLoaders[id]();
+}
+
+function gotoPageSb(id, el) {
+  document.querySelectorAll('.sidebar-item').forEach(s=>s.classList.remove('active'));
+  el.classList.add('active');
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.getElementById('page-'+id).classList.add('active');
+  document.querySelectorAll('.navlink').forEach(n=>{
+    if (n.getAttribute('onclick')&&n.getAttribute('onclick').includes("'"+id+"'")) n.classList.add('active');
+    else n.classList.remove('active');
+  });
+  pageLoaders[id] && pageLoaders[id]();
+}
+
+const pageLoaders = {
+  dashboard: loadDashboard,
+  audits: () => loadAudits(''),
+  compliance: loadCompliance,
+  risks: loadRisks,
+  findings: loadFindings,
+  reports: loadReports,
+  policies: loadPolicies,
+};
+
+function sevBadge(s) {
+  const m = {Critical:'bp-red',High:'bp-amber',Medium:'bp-blue',Low:'bp-green',Informational:'bp-gray'};
+  return `<span class="bp ${m[s]||'bp-gray'}">${s}</span>`;
+}
+function statusBadge(s) {
+  const m = {'Completed':'bp-green','In Progress':'bp-blue','Overdue':'bp-red','Pending':'bp-gray','Open':'bp-red','Resolved':'bp-green','Current':'bp-green','Due Review':'bp-amber','Under Review':'bp-blue'};
+  return `<span class="bp ${m[s]||'bp-gray'}">${s}</span>`;
+}
+function fmtDate(d) { return d ? d.replace('T',' ').slice(0,10) : '—'; }
+function ratingBadge(r) {
+  const m = {Critical:'bp-red',High:'bp-amber',Medium:'bp-blue',Low:'bp-green'};
+  return `<span class="bp ${m[r]||'bp-gray'}">${r}</span>`;
+}
+
+/* ═══════════════════════════════════════
+   NOTIFICATIONS
+═══════════════════════════════════════ */
+async function loadNotifications() {
+  try {
+    const data = await get('/api/notifications');
+    document.getElementById('notifBadge').textContent = data.unread;
+    document.getElementById('notifBadge').style.display = data.unread ? 'flex' : 'none';
+    const list = document.getElementById('notif-list');
+    if (!data.data.length) { list.innerHTML='<div class="notif-empty">No notifications</div>'; return; }
+    const typeColor = {warning:'#d97706',danger:'#e53e3e',success:'#38a169',info:'#3182ce'};
+    list.innerHTML = data.data.map(n => `
+      <div class="notif-item ${n.is_read?'read':''}" onclick="markNotifRead(${n.id},this)">
+        <div class="notif-dot" style="background:${n.is_read?'#e2e8f0':typeColor[n.type]||'#3182ce'}"></div>
+        <div><div class="notif-text">${n.message}</div><div class="notif-time">${fmtDate(n.created_at)}</div></div>
+      </div>`).join('');
+  } catch(e) {}
+}
+
+async function markNotifRead(id, el) {
+  await put(`/api/notifications/${id}/read`, {});
+  el.classList.add('read');
+  el.querySelector('.notif-dot').style.background = '#e2e8f0';
+  loadNotifications();
+}
+
+async function markAllNotifRead() {
+  await put('/api/notifications/read-all', {});
+  loadNotifications();
+}
+
+function toggleNotif(e) {
+  e.stopPropagation();
+  document.getElementById('notifPanel').classList.toggle('open');
+}
+document.addEventListener('click', e => {
+  if (!e.target.closest('#notifBtn') && !e.target.closest('#notifPanel'))
+    document.getElementById('notifPanel').classList.remove('open');
+});
+
+/* ═══════════════════════════════════════
+   DASHBOARD
+═══════════════════════════════════════ */
+async function loadDashboard() {
+  document.getElementById('dash-updated').textContent = new Date().toLocaleDateString('en-GB',{day:'numeric',month:'long',year:'numeric'});
+
+  try {
+    const [stats, depts, trend] = await Promise.all([
+      get('/api/dashboard/stats'),
+      get('/api/dashboard/dept-scores'),
+      get('/api/dashboard/compliance-trend'),
+    ]);
+
+    // Stats
+    document.getElementById('stat-score').innerHTML = `${stats.compliance_score}<span style="font-size:1.2rem">%</span>`;
+    document.getElementById('stat-active').textContent = stats.active_audits;
+    document.getElementById('stat-active-sub').textContent = `${stats.overdue_audits} overdue`;
+    document.getElementById('stat-findings').textContent = stats.open_findings;
+    document.getElementById('stat-findings-sub').textContent = `${stats.critical_findings} critical, ${stats.high_findings} high`;
+    document.getElementById('stat-policies').textContent = stats.policies_due;
+    document.getElementById('stat-policies-sub').textContent = `${stats.policies_overdue} overdue`;
+
+    // Alert
+    if (stats.policies_overdue > 0 || stats.overdue_audits > 0) {
+      const alertEl = document.getElementById('dash-alert');
+      alertEl.style.display = 'flex';
+      document.getElementById('dash-alert-text').innerHTML =
+        `<strong>Action required:</strong> ${stats.policies_due} policies pending annual review. ${stats.overdue_audits} audit(s) overdue.`;
+    }
+
+    // Sidebar counts
+    document.getElementById('sb-audit-count').textContent = stats.total_audits;
+    document.getElementById('sb-find-count').textContent = stats.open_findings;
+    document.getElementById('sb-comp-count').textContent = stats.policies_due;
+
+    // Dept bars
+    const deptColors = d => d >= 85 ? '#38a169' : d >= 70 ? '#d97706' : '#e53e3e';
+    document.getElementById('dept-bars').innerHTML = depts.data.map(d => `
+      <div style="margin-bottom:12px">
+        <div style="display:flex;justify-content:space-between;font-size:0.82rem;margin-bottom:4px">
+          <span>${d.department}</span><span style="font-weight:600;color:${deptColors(d.avg_score)}">${d.avg_score}%</span>
+        </div>
+        <div class="progress-bar"><div class="pf" style="width:${d.avg_score}%;background:${deptColors(d.avg_score)}"></div></div>
+      </div>`).join('');
+
+    // Donut
+    const dist = stats.audit_distribution;
+    const cfg = [
+      {label:'Completed',   key:'Completed',   color:'#38a169'},
+      {label:'In Progress', key:'In Progress',  color:'#3182ce'},
+      {label:'Pending',     key:'Pending',      color:'#d97706'},
+      {label:'Overdue',     key:'Overdue',      color:'#e53e3e'},
+    ];
+    const total = Object.values(dist).reduce((a,b)=>a+b,0) || 1;
+    const circ = 202;
+    let offset = -30;
+    const svgCircles = cfg.map(c => {
+      const cnt = dist[c.key] || 0;
+      const dash = (cnt/total)*circ;
+      const el = `<circle cx="60" cy="60" r="46" fill="none" stroke="${c.color}" stroke-width="16" stroke-dasharray="${dash} ${circ}" stroke-linecap="round" stroke-dashoffset="${offset}"/>`;
+      offset -= dash;
+      return el;
+    }).join('');
+    document.getElementById('donut-svg').innerHTML = `
+      <circle cx="60" cy="60" r="46" fill="none" stroke="#e2e8f0" stroke-width="16"/>
+      ${svgCircles}
+      <text x="60" y="56" text-anchor="middle" font-size="16" font-weight="700" fill="#1a202c" font-family="Fraunces,serif">${total}</text>
+      <text x="60" y="70" text-anchor="middle" font-size="10" fill="#718096" font-family="DM Sans,sans-serif">Audits</text>`;
+    document.getElementById('donut-legend').innerHTML = cfg.map(c=>
+      `<div class="dl-item"><div class="dl-dot" style="background:${c.color}"></div>${c.label} (${dist[c.key]||0})</div>`
+    ).join('');
+
+    // Activity
+    const actColors = {finding:'red', audit:'blue'};
+    document.getElementById('activity-list').innerHTML = stats.recent_activity.slice(0,5).map(a=>
+      `<div class="tl-item"><div class="tl-dot ${actColors[a.type]||'blue'}"></div>
+       <div class="tl-date">${fmtDate(a.ts)}</div>
+       <div class="tl-text">${a.text}</div>
+       <div class="tl-sub">${a.status}</div></div>`).join('') || '<div style="color:#a0aec0;font-size:0.84rem">No recent activity</div>';
+
+    // Deadlines
+    document.getElementById('deadlines-tbody').innerHTML = stats.upcoming_deadlines.slice(0,6).map(d=>
+      `<tr><td style="font-size:0.82rem">${d.item}</td><td style="font-size:0.82rem">${fmtDate(d.due_date)}</td><td>${statusBadge(d.status)}</td></tr>`
+    ).join('') || '<tr><td colspan="3" style="text-align:center;color:#a0aec0">No upcoming deadlines</td></tr>';
+
+    // Trend chart
+    renderTrendChart(trend.data);
+
+  } catch(e) {
+    console.error('Dashboard load error', e);
+  }
+}
+
+function renderTrendChart(data) {
+  if (!data || !data.length) return;
+  const xs = data.map((_, i) => 60 + i * (330/Math.max(data.length-1,1)));
+  const ys = data.map(d => 140 - ((d.score - 70) / 30) * 120);
+  const pts = xs.map((x,i) => `${x},${ys[i]}`).join(' ');
+  const areaPath = `M${xs[0]},${ys[0]} ` + xs.slice(1).map((x,i)=>`L${x},${ys[i+1]}`).join(' ') + ` L${xs[xs.length-1]},140 L${xs[0]},140 Z`;
+  const circles = xs.map((x,i)=>`<circle cx="${x}" cy="${ys[i]}" r="${i===data.length-1?5:4}" fill="${i===data.length-1?'#1a4fa0':'#3182ce'}"/>`).join('');
+  const labels = xs.map((x,i)=>`<text x="${x}" y="160" text-anchor="middle" font-size="9" fill="#a0aec0">${data[i].month.slice(0,3)}</text>`).join('');
+  document.getElementById('trend-path').innerHTML = `
+    <path d="${areaPath}" fill="#3182ce" opacity="0.1"/>
+    <polyline points="${pts}" fill="none" stroke="#3182ce" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+    ${circles}${labels}`;
+}
+
+/* ═══════════════════════════════════════
+   AUDITS
+═══════════════════════════════════════ */
+async function loadAudits(statusFilter) {
+  const search = document.getElementById('audit-search')?.value || '';
+  const type   = document.getElementById('audit-type-filter')?.value || '';
+  const dept   = document.getElementById('audit-dept-filter')?.value || '';
+  const params = new URLSearchParams({search, type, department:dept});
+  if (statusFilter) params.set('status', statusFilter);
+
+  try {
+    const data = await get(`/api/audits?${params}`);
+    const smap = {Completed:'bp-green','In Progress':'bp-blue',Overdue:'bp-red',Pending:'bp-gray'};
+    const rows = data.data.map(a => `<tr>
+      <td><div style="font-size:0.82rem;font-weight:500">${a.name}</div><div style="font-size:0.72rem;color:#a0aec0">${a.audit_code}</div></td>
+      <td><span class="tag">${a.type}</span></td>
+      <td style="font-size:0.82rem">${a.department}</td>
+      <td style="font-size:0.82rem">${a.lead_auditor}</td>
+      <td style="font-size:0.82rem">${fmtDate(a.start_date)}</td>
+      <td style="font-size:0.82rem;${a.status==='Overdue'?'color:#e53e3e;font-weight:600':''}">${fmtDate(a.due_date)}</td>
+      <td>${statusBadge(a.status)}</td>
+      <td style="font-weight:600;color:${a.score?'#38a169':'#a0aec0'}">${a.score ? a.score+'%' : '—'}</td>
+      <td style="display:flex;gap:4px">
+        <button class="btn btn-outline btn-sm" onclick="showToast('Viewing: ${a.name}')">View</button>
+        <button class="btn btn-sm btn-danger" style="padding:0.35rem 0.5rem" onclick="deleteAudit(${a.id},'${a.name}')">✕</button>
+      </td>
+    </tr>`).join('') || '<tr><td colspan="9" style="text-align:center;color:#a0aec0;padding:2rem">No audits found</td></tr>';
+
+    document.getElementById('audits-tbody').innerHTML = rows;
+
+    // Update tab labels
+    const c = data.counts || {};
+    const bar = document.querySelector('#page-audits .tab-bar');
+    if (bar) {
+      const tabs = bar.querySelectorAll('.tab-btn');
+      tabs[0].textContent = `All Audits (${data.data.length})`;
+    }
+
+    // Fill sub-tabs
+    ['In Progress','Completed','Overdue','Pending'].forEach((s,i) => {
+      const ids = ['inprogress-content','completed-content','overdue-content','pending-content'];
+      const filtered = data.data.filter(a => a.status === s);
+      document.getElementById(ids[i]).innerHTML = filtered.length
+        ? `<div class="card" style="padding:0;overflow:hidden;margin-bottom:0"><div style="overflow-x:auto"><table><thead><tr><th>Audit</th><th>Dept</th><th>Due</th><th>Score</th><th>Status</th></tr></thead><tbody>`
+          + filtered.map(a=>`<tr><td><div style="font-size:0.82rem;font-weight:500">${a.name}</div><div style="font-size:0.72rem;color:#a0aec0">${a.audit_code}</div></td><td style="font-size:0.82rem">${a.department}</td><td style="font-size:0.82rem">${fmtDate(a.due_date)}</td><td style="font-weight:600;color:${a.score?'#38a169':'#a0aec0'}">${a.score?a.score+'%':'—'}</td><td>${statusBadge(a.status)}</td></tr>`).join('')
+          + `</tbody></table></div></div>`
+        : `<div style="text-align:center;padding:2rem;color:#a0aec0">No ${s} audits</div>`;
+    });
+
+  } catch(e) {}
+}
+
+async function deleteAudit(id, name) {
+  if (!confirm(`Delete audit "${name}"?`)) return;
+  await del(`/api/audits/${id}`);
+  showToast(`Audit "${name}" deleted`);
+  loadAudits('');
+}
+
+/* ═══════════════════════════════════════
+   FINDINGS
+═══════════════════════════════════════ */
+async function loadFindings() {
+  const search = document.getElementById('finding-search')?.value || '';
+  const sev    = document.getElementById('finding-sev-filter')?.value || '';
+  const status = document.getElementById('finding-status-filter')?.value || '';
+  const params = new URLSearchParams({search, severity:sev, status});
+  try {
+    const data = await get(`/api/findings?${params}`);
+    const sc   = data.severity_counts || {};
+    document.getElementById('fc-critical').textContent = sc.Critical || 0;
+    document.getElementById('fc-high').textContent     = sc.High || 0;
+    document.getElementById('fc-medium').textContent   = sc.Medium || 0;
+    document.getElementById('fc-low').textContent      = (sc.Low||0) + (sc.Informational||0);
+
+    document.getElementById('findings-tbody').innerHTML = data.data.map(f=>`<tr>
+      <td style="font-size:0.72rem;color:#a0aec0">${f.finding_code}</td>
+      <td style="font-size:0.82rem;font-weight:500;max-width:220px">${f.title}</td>
+      <td style="font-size:0.8rem">${f.audit_name||'—'}</td>
+      <td>${sevBadge(f.severity)}</td>
+      <td style="font-size:0.82rem">${f.owner}</td>
+      <td style="font-size:0.82rem">${fmtDate(f.due_date)}</td>
+      <td>${statusBadge(f.status)}</td>
+      <td style="display:flex;gap:4px">
+        <button class="btn btn-outline btn-sm" onclick="showToast('Viewing: ${f.finding_code}')">Details</button>
+        ${f.status!=='Resolved'?`<button class="btn btn-sm btn-success" onclick="resolveFinding(${f.id})">✓</button>`:''}
+      </td>
+    </tr>`).join('') || '<tr><td colspan="8" style="text-align:center;color:#a0aec0;padding:2rem">No findings found</td></tr>';
+  } catch(e) {}
+}
+
+async function resolveFinding(id) {
+  await put(`/api/findings/${id}`, {status:'Resolved'});
+  showToast('Finding marked as resolved');
+  loadFindings();
+}
+
+/* ═══════════════════════════════════════
+   RISKS
+═══════════════════════════════════════ */
+async function loadRisks() {
+  const search = document.getElementById('risk-search')?.value || '';
+  try {
+    const data = await get(`/api/risks?search=${encodeURIComponent(search)}`);
+    const s = data.summary || {};
+    document.getElementById('risk-summary-kpis').innerHTML = [
+      {label:'Critical',val:s.critical||0,color:'#e53e3e'},
+      {label:'High',val:s.high||0,color:'#d97706'},
+      {label:'Medium',val:s.medium||0,color:'#3182ce'},
+      {label:'Low',val:s.low||0,color:'#38a169'},
+    ].map(k=>`<div class="mini-kpi"><div class="mk-val" style="color:${k.color}">${k.val}</div><div class="mk-label">${k.label}</div></div>`).join('');
+
+    const topRisks = data.data.filter(r=>r.score>=8).slice(0,4);
+    const riskColors = {Critical:'#e53e3e',High:'#d97706',Medium:'#3182ce',Low:'#38a169'};
+    const riskBg = {Critical:'#fff5f5',High:'#fffbeb',Medium:'#ebf8ff',Low:'#f0fff4'};
+    const riskDot = {Critical:'🔴',High:'🟠',Medium:'🟡',Low:'🟢'};
+    document.getElementById('top-risks-list').innerHTML = topRisks.map(r=>
+      `<div style="display:flex;align-items:center;gap:8px;padding:0.65rem;background:${riskBg[r.rating]};border-radius:7px;border-left:3px solid ${riskColors[r.rating]};margin-bottom:8px">
+        <span>${riskDot[r.rating]}</span>
+        <div><div style="font-size:0.82rem;font-weight:500">${r.description.slice(0,55)}…</div><div style="font-size:0.73rem;color:#718096">${r.owner} · Score: ${r.score}</div></div>
+      </div>`).join('') || '<div style="color:#a0aec0;font-size:0.84rem">No high risks</div>';
+
+    document.getElementById('risks-tbody').innerHTML = data.data.map(r=>`<tr>
+      <td style="font-size:0.72rem;color:#a0aec0">${r.risk_code}</td>
+      <td style="font-size:0.82rem;max-width:260px">${r.description}</td>
+      <td><span class="tag">${r.category}</span></td>
+      <td style="font-size:0.82rem">${r.owner}</td>
+      <td style="text-align:center">${r.likelihood}</td>
+      <td style="text-align:center">${r.impact}</td>
+      <td style="font-weight:700;text-align:center">${r.score}</td>
+      <td>${ratingBadge(r.rating)}</td>
+      <td style="display:flex;gap:4px">
+        <button class="btn btn-outline btn-sm" onclick="showToast('Viewing: ${r.risk_code}')">View</button>
+        <button class="btn btn-sm btn-danger" style="padding:0.35rem 0.5rem" onclick="deleteRisk(${r.id})">✕</button>
+      </td>
+    </tr>`).join('') || '<tr><td colspan="9" style="text-align:center;color:#a0aec0;padding:2rem">No risks found</td></tr>';
+  } catch(e) {}
+}
+
+async function deleteRisk(id) {
+  if (!confirm('Delete this risk?')) return;
+  await del(`/api/risks/${id}`);
+  showToast('Risk deleted');
+  loadRisks();
+}
+
+/* ═══════════════════════════════════════
+   POLICIES
+═══════════════════════════════════════ */
+async function loadPolicies() {
+  const search = document.getElementById('policy-search')?.value || '';
+  const cat    = document.getElementById('policy-cat-filter')?.value || '';
+  const status = document.getElementById('policy-status-filter')?.value || '';
+  const params = new URLSearchParams({search, category:cat, status});
+  try {
+    const data = await get(`/api/policies?${params}`);
+    document.getElementById('policies-tbody').innerHTML = data.data.map(p=>`<tr>
+      <td style="font-size:0.82rem;font-weight:500">${p.name}</td>
+      <td><span class="tag">${p.category}</span></td>
+      <td style="font-size:0.82rem">v${p.version}</td>
+      <td style="font-size:0.82rem">${p.owner}</td>
+      <td style="font-size:0.82rem">${fmtDate(p.last_review)}</td>
+      <td style="font-size:0.82rem;font-weight:${p.status==='Overdue'?'700':'400'};color:${p.status==='Overdue'?'#e53e3e':'inherit'}">${fmtDate(p.next_review)}</td>
+      <td>${statusBadge(p.status)}</td>
+      <td style="display:flex;gap:6px;flex-wrap:wrap">
+        <button class="btn btn-outline btn-sm" onclick="showToast('Viewing: ${p.name}')">View</button>
+        ${p.status!=='Current'?`<button class="btn btn-sm btn-primary" onclick="markPolicyCurrent(${p.id})">Mark Current</button>`:''}
+      </td>
+    </tr>`).join('') || '<tr><td colspan="8" style="text-align:center;color:#a0aec0;padding:2rem">No policies found</td></tr>';
+  } catch(e) {}
+}
+
+async function markPolicyCurrent(id) {
+  const today = new Date().toISOString().slice(0,10);
+  const nextYear = new Date(Date.now() + 365*24*60*60*1000).toISOString().slice(0,10);
+  await put(`/api/policies/${id}`, {status:'Current', last_review:today, next_review:nextYear});
+  showToast('Policy marked as current');
+  loadPolicies();
+}
+
+/* ═══════════════════════════════════════
+   COMPLIANCE
+═══════════════════════════════════════ */
+async function loadCompliance() {
+  try {
+    const [checklist, frameworks] = await Promise.all([
+      get('/api/checklist'),
+      get('/api/compliance/frameworks'),
+    ]);
+
+    // KPIs
+    const f = frameworks;
+    document.getElementById('compliance-kpis').innerHTML = [
+      {label:'Overall Score',val:f.overall+'%',color:'#38a169'},
+      {label:'Compliant',val:f.compliant,color:'#38a169'},
+      {label:'Partial',val:f.partial,color:'#d97706'},
+      {label:'Checked Items',val:`${checklist.checked}/${checklist.total}`,color:'#3182ce'},
+    ].map(k=>`<div class="mini-kpi"><div class="mk-val" style="color:${k.color}">${k.val}</div><div class="mk-label">${k.label}</div></div>`).join('');
+
+    // Checklist
+    document.getElementById('check-progress').textContent = `${checklist.checked} / ${checklist.total} checked`;
+    document.getElementById('checklist-container').innerHTML = checklist.data.map(item=>`
+      <div class="checklist-item ${item.is_checked?'checked':''}" id="chkitem-${item.id}" onclick="toggleCheck(${item.id},${item.is_checked})">
+        <div class="check-box" id="chkbox-${item.id}">${item.is_checked?'✓':''}</div>
+        <div>
+          <div class="check-title">${item.title}</div>
+          <div class="check-sub">${item.reference||''}${item.checked_by?' · Checked by '+item.checked_by:''}</div>
+        </div>
+      </div>`).join('');
+
+    // Frameworks
+    const fcolor = s => s>=85?'#38a169':s>=70?'#d97706':'#e53e3e';
+    document.getElementById('frameworks-list').innerHTML = f.data.map(fw=>`
+      <div style="margin-bottom:14px">
+        <div style="display:flex;justify-content:space-between;font-size:0.82rem;margin-bottom:4px">
+          <span style="font-weight:500">${fw.name}</span><span style="font-weight:600;color:${fcolor(fw.score)}">${fw.score}%</span>
+        </div>
+        <div class="progress-bar"><div class="pf" style="width:${fw.score}%;background:${fcolor(fw.score)}"></div></div>
+      </div>`).join('');
+
+  } catch(e) {}
+}
+
+async function toggleCheck(id, wasChecked) {
+  const newChecked = !wasChecked;
+  const el  = document.getElementById(`chkitem-${id}`);
+  const box = document.getElementById(`chkbox-${id}`);
+  // Optimistic UI
+  el.classList.toggle('checked', newChecked);
+  box.textContent = newChecked ? '✓' : '';
+  try {
+    await put(`/api/checklist/${id}`, {is_checked: newChecked});
+    // Reload to get accurate count
+    const data = await get('/api/checklist');
+    document.getElementById('check-progress').textContent = `${data.checked} / ${data.total} checked`;
+    // Update onclick
+    el.setAttribute('onclick', `toggleCheck(${id},${newChecked})`);
+  } catch(e) {
+    // Revert
+    el.classList.toggle('checked', wasChecked);
+    box.textContent = wasChecked ? '✓' : '';
+  }
+}
+
+/* ═══════════════════════════════════════
+   REPORTS
+═══════════════════════════════════════ */
+async function loadReports() {
+  try {
+    const data = await get('/api/reports');
+    const typeColors = {Compliance:'bp-blue',Audit:'bp-amber',Risk:'bp-red',Completed:'bp-green',Policy:'bp-purple'};
+    document.getElementById('reports-tbody').innerHTML = data.data.map(r=>`<tr>
+      <td style="font-size:0.82rem;font-weight:500">${r.name}</td>
+      <td><span class="bp ${typeColors[r.type]||'bp-gray'}">${r.type}</span></td>
+      <td style="font-size:0.82rem">${r.generated}</td>
+      <td style="font-size:0.82rem">${r.period}</td>
+      <td style="font-size:0.82rem">${r.formats}</td>
+      <td><button class="btn btn-outline btn-sm" onclick="showToast('Downloading: ${r.name}…')">Download</button></td>
+    </tr>`).join('');
+  } catch(e) {}
+}
+
+async function generateReport() {
+  const type = document.getElementById('gr-type').value;
+  await post('/api/reports/generate', {report_type: type});
+  closeModal('genReportModal');
+  showToast(`Report "${type}" generation started. Check notifications when ready.`);
+  loadNotifications();
+}
+
+/* ═══════════════════════════════════════
+   FORM SUBMISSIONS
+═══════════════════════════════════════ */
+async function submitAudit() {
+  const name = document.getElementById('na-name').value.trim();
+  if (!name) { showToast('Audit name is required', true); return; }
+  const btn = document.getElementById('na-submit');
+  btn.textContent = 'Creating…'; btn.disabled = true;
+  try {
+    await post('/api/audits', {
+      name, type: document.getElementById('na-type').value,
+      department: document.getElementById('na-dept').value,
+      lead_auditor: document.getElementById('na-lead').value,
+      priority: document.getElementById('na-priority').value,
+      start_date: document.getElementById('na-start').value || null,
+      due_date: document.getElementById('na-due').value || null,
+      scope: document.getElementById('na-scope').value,
+    });
+    closeModal('newAuditModal');
+    showToast(`Audit "${name}" created successfully!`);
+    document.getElementById('na-name').value = '';
+    document.getElementById('na-scope').value = '';
+    loadAudits('');
+    loadNotifications();
+  } finally {
+    btn.textContent = 'Create Audit'; btn.disabled = false;
+  }
+}
+
+async function submitFinding() {
+  const title = document.getElementById('nf-title').value.trim();
+  const owner = document.getElementById('nf-owner').value.trim();
+  if (!title || !owner) { showToast('Title and owner are required', true); return; }
+  const btn = document.getElementById('nf-submit');
+  btn.textContent = 'Logging…'; btn.disabled = true;
+  try {
+    const auditSel = document.getElementById('nf-audit');
+    await post('/api/findings', {
+      title, owner,
+      severity: document.getElementById('nf-severity').value,
+      audit_id: auditSel.value || null,
+      description: document.getElementById('nf-desc').value,
+      recommendation: document.getElementById('nf-action').value,
+      due_date: document.getElementById('nf-due').value || null,
+    });
+    closeModal('newFindingModal');
+    showToast('Finding logged and owner notified.');
+    document.getElementById('nf-title').value = '';
+    document.getElementById('nf-desc').value  = '';
+    document.getElementById('nf-owner').value = '';
+    loadFindings();
+    loadNotifications();
+  } finally {
+    btn.textContent = 'Log Finding'; btn.disabled = false;
+  }
+}
+
+async function submitRisk() {
+  const desc   = document.getElementById('nr-desc').value.trim();
+  const owner  = document.getElementById('nr-owner').value.trim();
+  const like   = parseInt(document.getElementById('nr-like').value);
+  const impact = parseInt(document.getElementById('nr-impact').value);
+  if (!desc || !owner) { showToast('Description and owner are required', true); return; }
+  if (!like || !impact || like<1||like>5||impact<1||impact>5) { showToast('Likelihood and impact must be 1–5', true); return; }
+  const btn = document.getElementById('nr-submit');
+  btn.textContent = 'Logging…'; btn.disabled = true;
+  try {
+    await post('/api/risks', {
+      description: desc, owner,
+      category: document.getElementById('nr-cat').value,
+      likelihood: like, impact,
+      mitigations: document.getElementById('nr-mit').value,
+    });
+    closeModal('newRiskModal');
+    showToast('Risk logged to the register.');
+    document.getElementById('nr-desc').value = '';
+    document.getElementById('nr-owner').value = '';
+    document.getElementById('nr-like').value = '';
+    document.getElementById('nr-impact').value = '';
+    document.getElementById('risk-score-display').textContent = '—';
+    loadRisks();
+  } finally {
+    btn.textContent = 'Log Risk'; btn.disabled = false;
+  }
+}
+
+async function submitPolicy() {
+  const name  = document.getElementById('np-name').value.trim();
+  const owner = document.getElementById('np-owner').value.trim();
+  if (!name || !owner) { showToast('Name and owner are required', true); return; }
+  const btn = document.getElementById('np-submit');
+  btn.textContent = 'Adding…'; btn.disabled = true;
+  try {
+    await post('/api/policies', {
+      name, owner,
+      category: document.getElementById('np-cat').value,
+      version: document.getElementById('np-ver').value || '1.0',
+      review_frequency: document.getElementById('np-freq').value,
+      effective_date: document.getElementById('np-eff').value || null,
+      next_review: document.getElementById('np-next').value || null,
+      summary: document.getElementById('np-summary').value,
+    });
+    closeModal('newPolicyModal');
+    showToast(`Policy "${name}" added to the register.`);
+    document.getElementById('np-name').value = '';
+    document.getElementById('np-owner').value = '';
+    loadPolicies();
+  } finally {
+    btn.textContent = 'Add Policy'; btn.disabled = false;
+  }
+}
+
+/* ═══════════════════════════════════════
+   RISK CALCULATOR
+═══════════════════════════════════════ */
+function calcRisk() {
+  const l = parseInt(document.getElementById('nr-like').value)||0;
+  const i = parseInt(document.getElementById('nr-impact').value)||0;
+  const el = document.getElementById('risk-score-display');
+  if (!l||!i){el.textContent='—';el.style.color='var(--navy)';return;}
+  const s = l*i;
+  const col = s>=15?'#e53e3e':s>=8?'#d97706':s>=4?'#3182ce':'#38a169';
+  const lbl = s>=15?'Critical':s>=8?'High':s>=4?'Medium':'Low';
+  el.textContent = `${s} — ${lbl}`;
+  el.style.color = col;
+}
+
+/* ═══════════════════════════════════════
+   POPULATE AUDIT DROPDOWN IN FINDING MODAL
+═══════════════════════════════════════ */
+async function populateAuditDropdown() {
+  try {
+    const data = await get('/api/audits?status=In Progress');
+    const sel = document.getElementById('nf-audit');
+    sel.innerHTML = '<option value="">— Select Audit —</option>' +
+      data.data.map(a=>`<option value="${a.id}">${a.audit_code}: ${a.name}</option>`).join('');
+  } catch(e) {}
+}
+
+/* ═══════════════════════════════════════
+   INIT
+═══════════════════════════════════════ */
+document.addEventListener('DOMContentLoaded', () => {
+  loadDashboard();
+  loadNotifications();
+  populateAuditDropdown();
+  // Refresh notifications every 60s
+  setInterval(loadNotifications, 60000);
+});
+</script>
+</body>
+</html>
